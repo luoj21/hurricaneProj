@@ -84,7 +84,7 @@ class HurricaneModel:
         plt.figure(figsize = [7, 6])
         plt.plot(self.data['date_time'], self.data[target])
         plt.plot(diff_data['date_time'], diff_data[target], linestyle = '--', color = 'green')
-        plt.legend(['Original', str(order) + 'th Order Difference'])
+        plt.legend(['Original', ' Order Difference: ' + str(order)])
         plt.xticks(rotation = 45, size = 7)
         plt.show()
 

@@ -16,7 +16,7 @@ class HurricaneModel:
         self.data = data
 
     def split_train_predict(self, ratio, X_feats, target, plot = False):
-
+        
         # Splits data into training and testing based off of specified ratio for training data
         n = int(round(len(self.data) * ratio,1))
         train_df = self.data.head(n)
@@ -87,8 +87,6 @@ class HurricaneModel:
         plt.legend(['Original', str(order) + 'th Order Difference'])
         plt.xticks(rotation = 45, size = 7)
         plt.show()
-        
-        return diff_data
 
 
 

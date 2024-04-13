@@ -2,6 +2,7 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
@@ -15,6 +16,14 @@ class HurricaneModel:
         self.model = model
         self.data = data
 
+    # Adds lag as a feature, which is the target at the previous time stamp
+    def addLaggedTarget(self, target, lag):
+        self.data[target + '_lag'] = self.data[target].shift(lag)
+        
+        # Filling NA's with 0
+        self.data.loc[0:lag-1, target + '_lag'] = 0
+
+    
     def split_train_predict(self, ratio, X_feats, target, plot = False):
         
         # Splits data into training and testing based off of specified ratio for training data
@@ -42,17 +51,25 @@ class HurricaneModel:
 
         # Plots predictions alongside original time series
         if plot == True:
-            ci = 1.645 * np.std(self.data[target])/np.mean(self.data[target])
+
+            # Confidence intervals for data using a 2 step rolling average
+            rolling_avg_dat = self.data[target].rolling(2).mean().combine_first(self.data[target]) 
+            rolling_avg_test = pd.DataFrame(y_pred).rolling(2).mean().combine_first(pd.DataFrame(y_pred))
+
+            se_dat =  2.576 * np.std(rolling_avg_dat) / math.sqrt(len(rolling_avg_dat))
+            se_test =  2.576 * np.std(rolling_avg_test) / math.sqrt(len(rolling_avg_test))
+
 
             plt.figure(figsize = [10, 5])
             plt.title(pd.unique(self.data['SID']))
 
             plt.plot(self.data['date_time'], self.data[target])
             plt.plot(test_df['date_time'], y_pred)
+            #plt.fill_between(self.data['date_time'], rolling_avg_dat - se_dat, rolling_avg_dat + se_dat, 
+                            # alpha = 0.2, color = 'b')
+            plt.fill_between(test_df['date_time'], (rolling_avg_test - se_test)[0], (rolling_avg_test + se_test)[0], 
+                             alpha = 0.2, color = 'r')
             plt.axvline(x = test_df['date_time'].iloc[0], linestyle = '--', color = "green")
-            plt.fill_between(self.data['date_time'], self.data[target] - ci, self.data[target] + ci, 
-                             alpha = 0.1, color = 'b')
-            
             plt.legend(['Actual ' + target, 'Predicted ' + target])
             plt.xticks(rotation = 45, size = 7)
             plt.ylabel(target)

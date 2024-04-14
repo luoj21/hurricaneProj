@@ -52,22 +52,17 @@ class HurricaneModel:
         # Plots predictions alongside original time series
         if plot == True:
 
-            # Confidence intervals for data using a 2 step rolling average
-            rolling_avg_dat = self.data[target].rolling(2).mean().combine_first(self.data[target]) 
-            rolling_avg_test = pd.DataFrame(y_pred).rolling(2).mean().combine_first(pd.DataFrame(y_pred))
-
-            se_dat =  2.576 * np.std(rolling_avg_dat) / math.sqrt(len(rolling_avg_dat))
-            se_test =  2.576 * np.std(rolling_avg_test) / math.sqrt(len(rolling_avg_test))
-
+            # Prediction intervals for data
+            rmse = 1.645 * mean_squared_error(y_test, y_pred, squared=False)
 
             plt.figure(figsize = [10, 5])
             plt.title(pd.unique(self.data['SID']))
 
             plt.plot(self.data['date_time'], self.data[target])
             plt.plot(test_df['date_time'], y_pred)
-            #plt.fill_between(self.data['date_time'], rolling_avg_dat - se_dat, rolling_avg_dat + se_dat, 
+            #plt.fill_between(self.data['date_time'], self.data[target] - rmse, self.data[target] + rmse, 
                             # alpha = 0.2, color = 'b')
-            plt.fill_between(test_df['date_time'], (rolling_avg_test - se_test)[0], (rolling_avg_test + se_test)[0], 
+            plt.fill_between(test_df['date_time'], y_pred - rmse, y_pred + rmse, 
                              alpha = 0.2, color = 'r')
             plt.axvline(x = test_df['date_time'].iloc[0], linestyle = '--', color = "green")
             plt.legend(['Actual ' + target, 'Predicted ' + target])
@@ -104,6 +99,16 @@ class HurricaneModel:
         plt.legend(['Original', ' Order Difference: ' + str(order)])
         plt.xticks(rotation = 45, size = 7)
         plt.show()
+
+    def predictFuture(self, feats, target, end_date):
+
+            ## Would have to use recursive modelling if a lagged feature is used, otherwise it is straight forward
+
+
+            '''future = pd.date_range(start = str(max(self.data['date_time'])), 
+                                   end = end_date,
+                                   freq="6h")'''
+            pass
 
 
 

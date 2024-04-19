@@ -18,10 +18,10 @@ class HurricaneModel:
 
     # Adds lag as a feature, which is the target at the previous time stamp
     def addLaggedTarget(self, target, lag):
-        self.data[target + '_lag'] = self.data[target].shift(lag)
+        self.data[target + '_lag' + str(lag)] = self.data[target].shift(lag)
         
         # Filling NA's with 0
-        self.data.loc[0:lag-1, target + '_lag'] = 0
+        self.data.loc[0:lag-1, target + '_lag' + str(lag)] = 0
 
     
     def split_train_predict(self, ratio, X_feats, target, plot = False):
@@ -55,7 +55,7 @@ class HurricaneModel:
             # Prediction intervals for data
             rmse = 1.645 * mean_squared_error(y_test, y_pred, squared=False)
 
-            plt.figure(figsize = [10, 5])
+            plt.figure(figsize = [7, 4])
             plt.title(pd.unique(self.data['SID']))
 
             plt.plot(self.data['date_time'], self.data[target])
@@ -109,6 +109,8 @@ class HurricaneModel:
                                    end = end_date,
                                    freq="6h")'''
             pass
+    
+
 
 
 

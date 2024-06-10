@@ -69,7 +69,7 @@ class HurricaneModel:
             # Prediction intervals for data
             rmse = 1.645 * mean_squared_error(y_test, y_pred, squared=False)
 
-            plt.figure(figsize = [7, 4])
+            plt.figure(figsize = [5, 3])
             plt.title(pd.unique(self.data['SID']))
 
             plt.plot(self.data['date_time'], self.data[target])
